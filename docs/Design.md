@@ -120,8 +120,6 @@ class SpaceshipRepository extends Repository<Spaceship> {
         }])
     }
 }
-
-
 ```
 
 ### Pros and Cons
@@ -205,24 +203,84 @@ property of a log.
 - How should the `_log` elements look like? Should we store the full update operation (`$set` etc.) or will it be too hard too read?
 Which other format would be flexible and appropriate?
 
-- Support storing audit logs (change logs)
-- Hooks: `beforeSave`, `afterSave`, `beforeUpdate`, `afterUpdate`
+
+### Hooks
+As in the original Tiller hooks might be useful. As validation is not a core functionality of the proposed Tiller 3
+the following methods make sense:
+- `beforeInsert` 
+- `afterInsert` 
+- `beforeUpdate` 
+- `afterUpdate`
+- `beforeDelete`
+- `afterDelete`
+
+Potentially also:
+- `beforeSave`, before any insert or update
+- `afterSave`, after any insert or update
+
+Open questions:
+* Is this really a useful feature? 
+
 ### Timestamps: help setting `modifiedAt` and `createdAt`
-Which time to use?
+Automatically set `_createdAt` and `_updatedAt`, as soon as `insert()` or `update()` is called.
+The same could work for `delete()` and `_deletedAt()`.
 
-- Use [Facebook DataLoader](https://github.com/facebook/dataloader) for coercing multiple requests into one
-- Make GraphQL integration easy
-- Nicely integrate with a validation API/framework, which still has be found
+Open questions:
+* Which time to use? 
+* If server time with `new Date()`, how to make sure the time for `_updatedAt` is the same as in the according `_log` entry?
 
-- _Query Builder?_
-- _Aggregation Helpers?_
-- _Cursor API?_
-- _Provide guidance where and how to create indexes?_
+### Implement DataLoader under the hood
+The goal is to use [Facebook DataLoader](https://github.com/facebook/dataloader) for coercing multiple requests into one.
+This could have a significant impact when loading multiple objects at the same time, e.g. when using GraphQL.   
+The data loader combines all requests from one tick on one bulk request if possible. The following two `find` operations would
+usually happen independently. However, as they're _"scheduled"_ in the same tick we could wait until the end of the tick,
+see which spaceships were requested and send a bulk read operation.  
+```
+let spaceships = await Promise.all(
+    spaceships.find(id1),
+    spaceships.find(id2)
+)
+```
 
-## Implementation
+The same logic should apply for writes.
 
-## Open Questions
-Static vs. instance methods?
+Open Questions:
+* How is it going to impact performance? A benchmark and an analysis of typical application loads would be interesting
+
+
+### GraphQL Support
+GraphQL should be a first class customer of Tiller 3. We will have to evaluate how to support it best.
+
+### Validation
+We should find a way to nicely integrate with a validation API/framework. This, however, still has to be found.  
+We should also check out [MongoDB native document validations](https://docs.mongodb.com/v3.2/core/document-validation/) 
+and check out the performance. They could do good job for basic schema constraints.
+
+### Cursor API
+The idea is to expose a cursor, potentially a Tiller cursor wrapping the MongoDB native cursor, 
+instead of always fetching the whole array directly:
+
+```
+class SpaceshipRepository extends Repository<Spaceship> {
+    
+    async find(_id): Cursor<Spaceship> {...}
+}
+
+class Cursor<T extends Document> {
+
+    async limit(): Cursor { ... }
+    async sort(): Promise<T|null> { ... }
+
+    async toArray(): Promise<T[]> { ... }
+    
+    async hasNext(): Promise<T|null> { ... }
+    async next(): Promise<T|null> { ... }
+}
+```
+
+This could improve:
+- Performance, as not the full array has to be loaded directly
+- Ease of adding `.limit()` and `.sort()`
 
 ## FAQ
 ### Where to add business logic?
@@ -233,7 +291,7 @@ Formerly, our rich models would have contained ...
  
  If you still want to do it, e.g. for the User, you could still return a rich model fro the repository
 
-### How to support subclasses/subinterfaces 
+### How to support subclasses/subinterfaces
 
 ### How to represent lazy references
 

@@ -156,9 +156,8 @@ If two users, user 1 and user 2, view the same object in a web frontend, they mi
   worked on the same property.
   
 The solution will be to add a `_version` property to every document, which is a number that increments on every update. Every 
-update operation then has to check whether the document is still at the `_version` at which it was loaded, otherwise the operation 
-must be aborted.  
-This algorithm is part of the _optimistic concurrency control_ class.
+update operation then has to check whether the document is still at the `_version` at which it was loaded, otherwise the operation must be aborted.
+Btw: This algorithm is part of the _optimistic concurrency control_ class of algos.
 
 Open Questions:  
 - How would that affect our code? Would we have to implement retries everywhere? In workers, web UI's?
@@ -299,16 +298,21 @@ This could improve:
 
 ## FAQ
 ### Where to add business logic?
-Formerly, our rich models would have contained ... 
- Now the good thing is we never have to think about it any more.
- Question: Where to put it? 
- * Namespace
+Formerly, our rich models would have contained small business logic or transformations and validations. Now this must be done outside.
+Now the good thing is we never have to think about it any more ;)
+
+Options:  
+- Namespace
+- Service
  
- If you still want to do it, e.g. for the User, you could still return a rich model fro the repository
+If you still want to do it, e.g. for the User, you could still return a rich model fro the repository
 
 ### How to support subclasses/subinterfaces
+TBD 
 
 ### How to represent lazy references
+TBD 
 
 ### How to represent eager references
+TBD 
 

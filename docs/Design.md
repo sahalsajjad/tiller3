@@ -1,4 +1,7 @@
 # Tiller 3 Design - Repository Pattern ftw 
+*Content*
+[Design Goals](#Design Goals)
+
 ## Design Goals
 1. Easy to implement, understand and maintain
 - [Avoid](http://martinfowler.com/bliki/OrmHate.html) [leaky](https://techblog.bozho.net/orm-haters-dont-get-it/) and [complex](http://wozniak.ca/what-orms-have-taught-me-just-learn-sql) [ORM abstractions](https://www.quora.com/Are-ORMs-inefficient)
@@ -9,7 +12,7 @@ the details of how a database works (what ORMs try to and what is incredibly har
 makes working with MongoDB really easy and fun! We have to remember: MongoDB is much closer to JS than we often think ...  
 
 ## Proposed Solution: Repository Pattern   
-### Example
+### Example - how it could feel like
 
 ```js
 /**

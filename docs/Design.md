@@ -8,16 +8,19 @@
 ## Design Goals
 1. Easy to implement, understand and maintain
 - [Avoid](http://martinfowler.com/bliki/OrmHate.html) [leaky](https://techblog.bozho.net/orm-haters-dont-get-it/) and [complex](http://wozniak.ca/what-orms-have-taught-me-just-learn-sql) [ORM abstractions](https://www.quora.com/Are-ORMs-inefficient)
-- Build for performance
+- Built for performance, referring to speed and ability to handle loads of data
 
-I believe it is impossible to write a good ORM for MongoDB that fulfills the listed goals. Rather than abstracting away
+I believe it is impossible to write a good classical ORM for MongoDB that fulfills the listed goals.   
+Rather than abstracting away
 the details of how a database works (what ORMs try to and what is incredibly hard) we should see Tiller as helper library that
-makes working with MongoDB really easy and fun! We have to remember: MongoDB is much closer to JS than we often think ...  
+makes working with MongoDB really easy and fun!  
 
 ## Proposed Solution: Repository Pattern   
+I propose moving away from rich prototyped model objects, comparable to ActiveRecord in Ruby or Hibernate in Java. We should use plain old JS objects with interfaces and a helper class to load and persist these objects - the [Repository](https://msdn.microsoft.com/en-us/library/ff649690.aspx).
+
 ### Example - how it could feel like
 
-```js
+```Typescript
 /**
  * The base interface from which all model interfaces inherit 
  */
@@ -30,8 +33,8 @@ interface Document {
 
 // --- Models --- 
 
-interface Commander {
-    name: string,
+interface Commander extends Document {
+    name: string
 }
 
 interface Spaceship extends Document {
@@ -45,19 +48,19 @@ interface Spaceship extends Document {
 abstract class Repository<T extends Document> {
 
     /**
-     * Fetches model documents from the database
+     * Fetches documents from the database
      */
     async find(sel: {}):Promise<T[]> { ... }
     
     /**
-     * Inserts a new model into the database and returns it
-     * Would automatically set _createdAt
+     * Inserts a new document into the database and returns it.
+     * Would automatically set _createdAt.
      */
     async insert(obj: any):Promise<T> { ... }
     
     /**
      * Delta-updates an existing model.
-     * Would automatically set _updatedAt
+     * Would automatically set _updatedAt.
      */
     async update(_id, update: any):Promise<T> { ... }
 }
@@ -98,6 +101,9 @@ router.put(async (req) => {
 
 // --- Use Case: How references could work ---
 
+/**
+ * "Mixin" interface for models which have loaded a commander object
+ */ 
 interface WithCommander {
     commander: Commander
 }
@@ -105,12 +111,15 @@ interface WithCommander {
 interface SpaceshipWithCommander extends Spaceship, WithCommander {
 
 }
+// or:
+type SpaceshipWithCommander = Spaceship & WithCommander
+ 
  
 class SpaceshipRepository extends Repository<Spaceship> {
     
     /**
      * Overrides the standard find to eagerly load
-     * commanders.
+     * commanders right away.
      * Note the return type!
      */
     async find(_id):Promise<SpaceshipWithCommander> {
@@ -132,8 +141,8 @@ class SpaceshipRepository extends Repository<Spaceship> {
 Pros
 - Near native Performance, because no conversion of objects coming from and to DB needed 
 - Easy to implement, not too much code is needed. Probably a few files are sufficient for the core functionality.
-- Tailored `find`'s, good for performance (lookups) and amount of data (projections)
-- The general complexity of the system __decreases__, because there is no magic under the hood
+- Tailored `find`'s and `updates`'s -> good for performance (lookups) and amount of data (projections)
+- The general complexity of the system _decreases_, because there is no magic under the hood
 
 Cons
 - Even most simple business or serialization logic cannot be stored in the DB any more

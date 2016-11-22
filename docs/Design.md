@@ -1,6 +1,9 @@
 # Tiller 3 Design - Repository Pattern ftw 
 *Content*
-[Design Goals](#Design Goals)
+[Design Goals](#design-goals)
+[Proposed Solution](#proposed-solution)
+[Features](#features)
+[FAQ](#faq)
 
 ## Design Goals
 1. Easy to implement, understand and maintain

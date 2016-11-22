@@ -1,7 +1,7 @@
 # Tiller 3 Design - Repository Pattern ftw 
 **Content**  
 [Design Goals](#design-goals)  
-[Proposed Solution](#proposed-solution)  
+[Proposed Solution](#proposed-solution-repository-pattern)  
 [Features](#features)  
 [FAQ](#faq)  
   

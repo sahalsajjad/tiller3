@@ -125,10 +125,13 @@ class SpaceshipRepository extends Repository<Spaceship> {
 ```
 
 ### Pros and Cons
-+ Near native Performance, because no conversion of objects coming from and to DB needed 
-+ Easy to implement, not too much code is needed. Probably a few files are sufficient for the core functionality.
-+ Tailored `find`'s, good for performance (lookups) and amount of data (projections)
-+ The general complexity of the system __decreases__, because there is no magic under the hood
+Pros
+- Near native Performance, because no conversion of objects coming from and to DB needed 
+- Easy to implement, not too much code is needed. Probably a few files are sufficient for the core functionality.
+- Tailored `find`'s, good for performance (lookups) and amount of data (projections)
+- The general complexity of the system __decreases__, because there is no magic under the hood
+
+Cons
 - Even most simple business or serialization logic cannot be stored in the DB any more
 - Probably a bit more code to write (lookups), but helpers can make this little effort. However, code will be fast!
 
@@ -144,10 +147,10 @@ update operation then has to check whether the document is still at the `_versio
 must be aborted.  
 This algorithm is part of the _optimistic concurrency control_ class.
 
-Open Questions: 
-* How would that affect our code? Would we have to implement retries everywhere? In workers, web UI's?
-* What happens if you have to save first a commander and then a spaceship update? Rollback? Does that every happen?
-* Could we implement optimistic concurrency control on the property level?
+Open Questions:  
+- How would that affect our code? Would we have to implement retries everywhere? In workers, web UI's?
+- What happens if you have to save first a commander and then a spaceship update? Rollback? Does that every happen?
+- Could we implement optimistic concurrency control on the property level?
   
 ### References
 Any kind of framework-provided magic reference logic does not exist any more.
@@ -170,10 +173,43 @@ class SpaceshipRepository extends Repository<Spaceship> {
 Relatively self-explanatory. Having a type-safe easy way to generate aggregation stages (see example above),
  or a simple interface for creating bulk ops could be a benefit for writing and reading code.
 
- 
+### Audit Logs
+Storing a history of changes (a log) to an object is a frequent requirement for apps. Tiller 
+could automatically support this by pushing an update operation to a `_log` property, so objects
+could look like this:
+```Typescript
+// A document from the spaceships collection
+{
+    _id: ObjectId(...),
+    _createdAt: ...,
+    _version: 2,
+    _log: [{
+        date: ...,
+        ctx: ..., // reserved for a user or a system, who did the change?
+        update: {
+            $set: {
+            }
+        }
+    }]
+    name: 'USS Enterprise',
+    speed: 1000,
+    commander_id: 'be45f345',
+    
+}
+```
+
+Open questions:
+- What happens if a user manually edits an object? Does he have to edit the `_log`? Otherwise it would diverge the 
+log and the current model, because it can suddenly not be rebuild any more from the `_log`, which is generally a good
+property of a log.
+- How should the `_log` elements look like? Should we store the full update operation (`$set` etc.) or will it be too hard too read?
+Which other format would be flexible and appropriate?
+
 - Support storing audit logs (change logs)
 - Hooks: `beforeSave`, `afterSave`, `beforeUpdate`, `afterUpdate`
-- Timestamps: help setting `modifiedAt` and `createdAt`
+### Timestamps: help setting `modifiedAt` and `createdAt`
+Which time to use?
+
 - Use [Facebook DataLoader](https://github.com/facebook/dataloader) for coercing multiple requests into one
 - Make GraphQL integration easy
 - Nicely integrate with a validation API/framework, which still has be found

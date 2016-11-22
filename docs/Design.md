@@ -1,10 +1,10 @@
 # Tiller 3 Design - Repository Pattern ftw 
-*Content*
-[Design Goals](#design-goals)
-[Proposed Solution](#proposed-solution)
-[Features](#features)
-[FAQ](#faq)
-
+**Content**  
+[Design Goals](#design-goals)  
+[Proposed Solution](#proposed-solution)  
+[Features](#features)  
+[FAQ](#faq)  
+  
 ## Design Goals
 1. Easy to implement, understand and maintain
 - [Avoid](http://martinfowler.com/bliki/OrmHate.html) [leaky](https://techblog.bozho.net/orm-haters-dont-get-it/) and [complex](http://wozniak.ca/what-orms-have-taught-me-just-learn-sql) [ORM abstractions](https://www.quora.com/Are-ORMs-inefficient)

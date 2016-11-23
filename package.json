@@ -1,0 +1,35 @@
+{
+  "name": "tiller2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "DB.js",
+  "dependencies": {
+    "@types/bluebird": "^3.0.35",
+    "@types/lodash": "^4.14.37",
+    "@types/mongodb": "^2.1.33",
+    "@types/request": "^0.0.34",
+    "@types/request-promise": "^4.1.33",
+    "bluebird": "^3.4.1",
+    "js-schema": "^1.0.1",
+    "lodash": "^4.11.1",
+    "mongodb": "^2.2.11",
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1",
+    "source-map-support": "^0.4.0"
+  },
+  "devDependencies": {
+    "@types/benchmark": "^1.0.30",
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.32",
+    "benchmark": "^2.1.2",
+    "chai": "^3.5.0",
+    "database-cleaner": "^1.1.0",
+    "mocha": "^3.1.2",
+    "source-map-support": "^0.4.3"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Erik Muttersbach <erik@muttersbach.net>",
+  "license": "ISC"
+}

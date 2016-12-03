@@ -1,10 +1,14 @@
 import { Document } from "./Document"
-import { Db, Collection, Cursor } from "mongodb"
+import { Db, Collection, Cursor, InsertOneWriteOpResult } from "mongodb"
+import * as _ from 'lodash'
 
 export abstract class Repository<T extends Document> {
+    protected options: Repository.Options
 
-    constructor(protected db: Db, protected collection: Collection) {
-
+    constructor(protected db: Db, readonly collection: Collection, options?: Repository.Options) {
+        this.options = _.assign({
+            versionDocuments: false
+        }, options)
     }
 
     async aggregate() {
@@ -14,7 +18,20 @@ export abstract class Repository<T extends Document> {
     // beforeUpdate, afterUpdate, beforeUpsert, beforeInsert
     // afterLoad, afterFind, afterAggregate
     public on(type: string, fn: (type: string, model: any) => Promise<void>) {
+    }
 
+    /**
+     * Inserts a new document into the database
+     *
+     * @param document
+     */
+    async insertOne(document: T):Promise<T> {
+        if(this.options.versionDocuments) {
+            document._version = document._version || 0
+        }
+
+        const insertOneResult = await this.collection.insertOne(document)
+        return insertOneResult.ops[0]
     }
 
     // TODO Make sure _version and _id are not in update or make sure it still works if its set to bad values ...
@@ -23,12 +40,12 @@ export abstract class Repository<T extends Document> {
             _id: _id,
             _version: _version
         }, {
-                $set: update,
-                $inc: { _version: 1 },
-                $push: {
-                    _log: update
-                }
-            })
+            $set: update,
+            $inc: { _version: 1 },
+            $push: {
+                _log: update
+            }
+        })
 
         if (r.modifiedCount != 1) {
             throw new Error('Attempted to update a stale or deleted object')
@@ -41,5 +58,11 @@ export abstract class Repository<T extends Document> {
 
     cursor(sel): Cursor {
         return this.collection.find(sel)
+    }
+}
+
+export namespace Repository {
+    export interface Options {
+        versionDocuments?: boolean
     }
 }

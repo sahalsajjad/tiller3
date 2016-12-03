@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import { includeHelper, db } from "./helper";
 import { SpaceshipRepository } from "./lib/repositories/SpaceshipRepository";
+import { ObjectID } from "mongodb";
 
 describe('Repository', () => {
     includeHelper()
@@ -24,7 +25,19 @@ describe('Repository', () => {
             }])
         })
 
-        it('saves a versioned document to the database', async() => {
+        it('saves a document with existing _id to the database', async() => {
+            let r = await spaceships.insertOne({
+                _id: 123,
+                name: 'USS Enterprise'
+            })
+
+            expect(await spaceships.collection.find({}).toArray()).to.eqls([{
+                _id: 123,
+                name: 'USS Enterprise'
+            }])
+        })
+
+        it('saves a document to the database and sets _version', async() => {
             let r = await spaceshipsV.insertOne({
                 name: 'USS Enterprise'
             })
@@ -36,8 +49,9 @@ describe('Repository', () => {
             }])
         })
 
-        // Setting the _version beforehand should be possible
-        it('saves a pre-versioned document to the database', async() => {
+        // Setting the _version beforehand should be possible, for example
+        // if a user wants to re-insert deleted documents
+        it('saves a document with existing _version to the database', async() => {
             let r = await spaceshipsV.insertOne({
                 _version: 10,
                 name: 'USS Enterprise'
@@ -59,6 +73,13 @@ describe('Repository', () => {
                 name: 'USS Enterprise'
             })
             expect(await spaceships.collection.find({}).toArray()).to.eqls([r])
+        })
+
+        it('returns the saved versioned document', async() => {
+            let r = await spaceshipsV.insertOne({
+                name: 'USS Enterprise'
+            })
+            expect(await spaceshipsV.collection.find({}).toArray()).to.eqls([r])
         })
     })
 })

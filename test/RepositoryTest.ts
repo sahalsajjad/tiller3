@@ -12,7 +12,9 @@ describe('Repository', () => {
         spaceships = new Spaceships(db)
     })
 
-    describe('save', () => {
+
+
+    /*describe('save', () => {
         it('saves ', async() => {
             let spaceship: Spaceship = {
                 name: 'USS Enterprise'
@@ -20,9 +22,9 @@ describe('Repository', () => {
 
             await spaceships.save(spaceship)
         })
-    })
+    })*/
 
-    describe('updateAndFind', () => {
+    /*describe('updateAndFind', () => {
         it('updates an object', async() => {
             let s = await createSpaceship(db)
             let r = await spaceships.updateAndFind(s._id, s._version, { speed: 1 })
@@ -34,5 +36,5 @@ describe('Repository', () => {
             let r = await spaceships.updateAndFind(s._id, s._version, { _version: 100, speed: 1 })
             expect(r._version).to.eq(s._version + 1)
         })
-    })
+    })*/
 })

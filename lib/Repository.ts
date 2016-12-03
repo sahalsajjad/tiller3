@@ -1,6 +1,5 @@
 import { Document } from "./Document"
 import { Db, Collection, Cursor } from "mongodb"
-import * as _ from 'lodash'
 
 export abstract class Repository<T extends Document> {
 

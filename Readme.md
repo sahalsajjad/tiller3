@@ -7,5 +7,3 @@ Go to the [design document draft](./docs/Design.md)
   <img src="https://codecov.io/gh/freight-hub/tiller3/branch/master/graph/badge.svg" alt="Codecov" />
 </a>
 
-## Sample Data API
-http://swapi.co/

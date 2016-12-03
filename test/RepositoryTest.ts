@@ -214,5 +214,24 @@ describe('Repository', () => {
                 expect(await r.count(false)).to.eq(1)
             })
         })
+
+        describe('find', () => {
+            it('returns instance of a promise', () => {
+                let r = spaceships.find({})
+                expect(r).to.be.instanceof(Promise)
+            })
+
+            it('returns all objects with empty selector', async () => {
+                let r = await spaceships.find({})
+                expect(r).to.have.length(2)
+                expect(r.map((ship) => ship.name)).to.eqls(['USS Enterprise', 'USS Voyager'])
+            })
+
+            it('returns some objects with specific selector', async () => {
+                let r = await spaceships.find({ name: 'USS Voyager' })
+                expect(r).to.have.length(1)
+                expect(r[0].name).to.eq('USS Voyager')
+            })
+        })
     })
 })

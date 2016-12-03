@@ -1,0 +1,5 @@
+--require source-map-support/register
+--require reflect-metadata
+--require ./config/kernel
+--recursive
+--ui bdd

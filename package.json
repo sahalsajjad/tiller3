@@ -22,7 +22,8 @@
   },
   "scripts": {
     "postinstall": "node_modules/.bin/tsc",
-    "test": "node_modules/.bin/mocha"
+    "test": "node_modules/.bin/mocha",
+    "codecov": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- --ui bdd test/ && ./node_modules/.bin/codecov"
   },
   "author": "Erik Muttersbach <erik@muttersbach.net>",
   "license": "ISC"

@@ -1,6 +1,6 @@
 test:
   override:
-    - ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -R spec
+    - npm run test-coverage
   post:
     #- bash <(curl -s https://codecov.io/bash)
     - node_modules/.bin/codecov

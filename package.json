@@ -19,8 +19,8 @@
     "mocha": "^3.2.0"
   },
   "scripts": {
-    "postinstall": "tsc",
-    "test": "mocha"
+    "postinstall": "node_modules/.bin/tsc",
+    "test": "node_modules/.bin/mocha"
   },
   "author": "Erik Muttersbach <erik@muttersbach.net>",
   "license": "ISC"

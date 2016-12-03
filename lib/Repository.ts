@@ -1,5 +1,5 @@
 import { Document } from "./Document"
-import { Db, Collection, Cursor, InsertOneWriteOpResult } from "mongodb"
+import { AggregationCursor, Db, Collection, Cursor, InsertOneWriteOpResult } from "mongodb"
 import * as _ from 'lodash'
 
 export abstract class Repository<T extends Document> {
@@ -11,8 +11,14 @@ export abstract class Repository<T extends Document> {
         }, options)
     }
 
-    async aggregate() {
-
+    /**
+     * Passes aggregation stages to the mongoDB aggregation pipeline and returns a cursor
+     *
+     * @param {any[]} stages
+     * @returns {AggregationCursor}
+     */
+    aggregate(stages: any[]): AggregationCursor {
+        return this.collection.aggregate(stages)
     }
 
     // beforeUpdate, afterUpdate, beforeUpsert, beforeInsert
@@ -29,8 +35,8 @@ export abstract class Repository<T extends Document> {
      * @param document      The document to create
      * @returns             The created document
      */
-    async insertOne(document: T):Promise<T> {
-        if(this.options.versionDocuments) {
+    async insertOne(document: T): Promise<T> {
+        if (this.options.versionDocuments) {
             document._version = document._version || 0
         }
 
@@ -47,8 +53,8 @@ export abstract class Repository<T extends Document> {
      *
      * @see insertOne
      */
-    async insertMany(documents: T[]):Promise<T[]> {
-        if(this.options.versionDocuments) {
+    async insertMany(documents: T[]): Promise<T[]> {
+        if (this.options.versionDocuments) {
             documents.forEach(d => d._version = d._version || 0)
         }
 
@@ -62,12 +68,12 @@ export abstract class Repository<T extends Document> {
             _id: _id,
             _version: _version
         }, {
-            $set: update,
-            $inc: { _version: 1 },
-            $push: {
-                _log: update
-            }
-        })
+                $set: update,
+                $inc: { _version: 1 },
+                $push: {
+                    _log: update
+                }
+            })
 
         if (r.modifiedCount != 1) {
             throw new Error('Attempted to update a stale or deleted object')

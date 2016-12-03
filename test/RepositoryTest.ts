@@ -18,7 +18,7 @@ describe('Repository', () => {
                 name: 'USS Enterprise'
             })
 
-            expect(await db.collection('spaceships').find({})).to.eq([{
+            expect(await spaceships.collection.find({}).toArray()).to.eqls([{
                 _id: r._id,
                 name: 'USS Enterprise'
             }])
@@ -29,21 +29,36 @@ describe('Repository', () => {
                 name: 'USS Enterprise'
             })
 
-            expect(await db.collection('spaceships').find({})).to.eq([{
+            expect(await spaceships.collection.find({}).toArray()).to.eqls([{
                 _id: r._id,
+                _version: 0,
                 name: 'USS Enterprise'
             }])
+        })
+
+        // Setting the _version beforehand should be possible
+        it('saves a pre-versioned document to the database', async() => {
+            let r = await spaceshipsV.insertOne({
+                _version: 10,
+                name: 'USS Enterprise'
+            })
+
+            expect(await spaceships.collection.find({}).toArray()).to.eqls([{
+                _id: r._id,
+                _version: 10,
+                name: 'USS Enterprise'
+            }])
+        })
+
+        it('saves a timestamped document to the database', async() => {
+            // TODO
         })
 
         it('returns the saved document', async() => {
             let r = await spaceships.insertOne({
                 name: 'USS Enterprise'
             })
-
-            expect(await db.collection('spaceships').find({})).to.eq([{
-                _id: r._id,
-                name: 'USS Enterprise'
-            }])
+            expect(await spaceships.collection.find({}).toArray()).to.eqls([r])
         })
     })
 })

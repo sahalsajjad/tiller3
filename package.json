@@ -1,13 +1,13 @@
 {
-  "name": "tiller2",
+  "name": "tiller3",
   "version": "1.0.0",
   "description": "",
   "main": "DB.js",
+  "repository": "https://github.com/freight-hub/tiller3",
   "dependencies": {
     "@types/mongodb": "^2.1.36",
     "mongodb": "^2.2.12",
-    "source-map-support": "^0.4.6",
-    "typescript": "^2.0.10"
+    "source-map-support": "^0.4.6"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",

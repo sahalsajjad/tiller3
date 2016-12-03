@@ -233,5 +233,24 @@ describe('Repository', () => {
                 expect(r[0].name).to.eq('USS Voyager')
             })
         })
+
+        describe('findOne', () => {
+            it('returns instance of a promise', () => {
+                let r = spaceships.findOne({})
+                expect(r).to.be.instanceof(Promise)
+            })
+
+            it('returns one with specific name', async () => {
+                let r = await spaceships.findOne({ name: 'USS Voyager' })
+                expect(r).to.exist
+                expect(r.name).to.eq('USS Voyager')
+            })
+
+            it('returns one with specific name', async () => {
+                let r = await spaceships.findOne({ _id: ships[1]._id })
+                expect(r).to.exist
+                expect(r.name).to.eq('USS Voyager')
+            })
+        })
     })
 })

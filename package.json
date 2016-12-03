@@ -1,12 +1,14 @@
 {
   "name": "tiller3",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "DB.js",
   "repository": "https://github.com/freight-hub/tiller3",
   "dependencies": {
     "@types/lodash": "^4.14.41",
     "@types/mongodb": "^2.1.36",
+    "codecov": "^1.0.1",
+    "istanbul": "^0.4.5",
     "lodash": "^4.17.2",
     "mongodb": "^2.2.12",
     "source-map-support": "^0.4.6",
@@ -20,7 +22,8 @@
   },
   "scripts": {
     "postinstall": "node_modules/.bin/tsc",
-    "test": "node_modules/.bin/mocha"
+    "test": "node_modules/.bin/mocha",
+    "codecov": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- --ui bdd test/ && ./node_modules/.bin/codecov"
   },
   "author": "Erik Muttersbach <erik@muttersbach.net>",
   "license": "ISC"

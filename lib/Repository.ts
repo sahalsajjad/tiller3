@@ -75,17 +75,42 @@ export abstract class Repository<T extends Document> {
                 }
             })
 
-        if (r.modifiedCount != 1) {
+            if('_version' in dbUpdate.$set) {
+                dbUpdate.$set = _.omit(dbUpdate.$set, '_version')
+            }
+
+            selector['_version'] = _version
+            dbUpdate['$inc'] = { _version: 1 }
+        }
+
+        let r = await this.collection.findOneAndUpdate(selector, dbUpdate, {returnOriginal: false})
+        if (!r.value || r.ok != 1) {
             throw new Error('Attempted to update a stale or deleted object')
         }
+
+        return r.value
     }
 
-    find(sel): Promise<T[]> {
-        return this.collection.find(sel).toArray()
-    }
-
-    cursor(sel): Cursor {
+    /**
+     * Returns a MongoDB cursor for the given selector
+     * @param {any} sel
+     * @returns {Cursor}
+     */
+    cursor(sel: any): Cursor {
         return this.collection.find(sel)
+    }
+
+    /**
+     * Executes given find selector
+     * @param {any} sel
+     * @returns {Promise<T[]>}
+     */
+    find(sel: any): Promise<T[]> {
+        return this.cursor(sel).toArray()
+    }
+
+    findOne(sel: any): Promise<T> {
+        return this.collection.findOne(sel)
     }
 }
 

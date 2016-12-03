@@ -1,5 +1,3 @@
-import { ObjectID } from "mongodb"
-
 export interface Document {
     _id?: any
     _version?: number,

@@ -96,12 +96,26 @@ export abstract class Repository<T extends Document> {
         return r.value
     }
 
-    find(sel): Promise<T[]> {
-        return this.collection.find(sel).toArray()
+    /**
+     * Returns a MongoDB cursor for the given selector
+     * @param {any} sel
+     * @returns {Cursor}
+     */
+    cursor(sel: any): Cursor {
+        return this.collection.find(sel)
     }
 
-    cursor(sel): Cursor {
-        return this.collection.find(sel)
+    /**
+     * Executes given find selector
+     * @param {any} sel
+     * @returns {Promise<T[]>}
+     */
+    find(sel: any): Promise<T[]> {
+        return this.cursor(sel).toArray()
+    }
+
+    findOne(sel: any): Promise<T> {
+        return this.collection.findOne(sel)
     }
 }
 

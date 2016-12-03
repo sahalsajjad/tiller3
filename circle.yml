@@ -1,0 +1,6 @@
+test:
+  override:
+    - npm run codecov
+  post:
+    #- bash <(curl -s https://codecov.io/bash)
+    - node_modules/.bin/codecov

@@ -1,7 +1,6 @@
 import { expect } from 'chai'
-import { includeHelper, db } from "./helper";
-import { SpaceshipRepository } from "./lib/repositories/SpaceshipRepository";
-import { ObjectID } from "mongodb";
+import { includeHelper, db } from "./helper"
+import { SpaceshipRepository } from "./lib/repositories/SpaceshipRepository"
 
 describe('Repository', () => {
     includeHelper()

@@ -18,12 +18,8 @@ export abstract class Repository<T extends Document> {
 
     }
 
-
-
     // TODO Make sure _version and _id are not in update or make sure it still works if its set to bad values ...
     async update(_id, _version: number, update: any):Promise<void> {
-        this.beforeUpdate(update)
-
         let r = await this.collection.updateOne({
             _id: _id,
             _version: _version

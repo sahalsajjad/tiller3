@@ -2,4 +2,5 @@ test:
   override:
     - ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -R spec
   post:
-    - bash <(curl -s https://codecov.io/bash)
+    #- bash <(curl -s https://codecov.io/bash)
+    - node_modules/.bin/codecov

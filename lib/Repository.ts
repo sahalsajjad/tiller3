@@ -21,17 +21,39 @@ export abstract class Repository<T extends Document> {
     }
 
     /**
-     * Inserts a new document into the database
+     * Inserts a new document into the database and returns the new document.
+     * If _id does not already exist, it will be created.
+     * If document versioning is enabled and _version does not already exist the
+     * document version is set to 0.
      *
-     * @param document
+     * @param document      The document to create
+     * @returns             The created document
      */
     async insertOne(document: T):Promise<T> {
         if(this.options.versionDocuments) {
             document._version = document._version || 0
         }
 
-        const insertOneResult = await this.collection.insertOne(document)
-        return insertOneResult.ops[0]
+        const r = await this.collection.insertOne(document)
+        return r.ops[0]
+    }
+
+    /**
+     * Inserts new documents into the database and returns the new documents.
+     * See `insertOne` for the behaviour of `_id` and `_version` attributes.
+     *
+     * @param documents     The documents to create
+     * @returns             The created documents
+     *
+     * @see insertOne
+     */
+    async insertMany(documents: T[]):Promise<T[]> {
+        if(this.options.versionDocuments) {
+            documents.forEach(d => d._version = d._version || 0)
+        }
+
+        const r = await this.collection.insertMany(documents)
+        return r.ops
     }
 
     // TODO Make sure _version and _id are not in update or make sure it still works if its set to bad values ...

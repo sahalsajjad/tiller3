@@ -3,7 +3,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es6",
-    //"outDir": "lib/",
+    // "outDir": "lib/",
     "declaration": true,
     "noImplicitAny": false,
     "suppressImplicitAnyIndexErrors": true,
@@ -14,6 +14,6 @@
     "experimentalDecorators": true
   },
   "exclude": [
-
+    "node_modules"
   ]
 }

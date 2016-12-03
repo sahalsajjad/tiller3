@@ -1,40 +1,49 @@
 import { expect } from 'chai'
-import { Spaceship } from "./lib/models/Spaceship"
-import { Spaceships } from "./lib/repositories/Spaceships"
 import { includeHelper, db } from "./helper";
-import { createSpaceship } from "./fixtures";
+import { SpaceshipRepository } from "./lib/repositories/SpaceshipRepository";
 
 describe('Repository', () => {
     includeHelper()
 
-    let spaceships: Spaceships;
+    let spaceships: SpaceshipRepository
+    let spaceshipsV: SpaceshipRepository
     beforeEach(async() => {
-        spaceships = new Spaceships(db)
+        spaceships = new SpaceshipRepository(db, { versionDocuments: false })
+        spaceshipsV = new SpaceshipRepository(db, { versionDocuments: true })
     })
 
-
-
-    /*describe('save', () => {
-        it('saves ', async() => {
-            let spaceship: Spaceship = {
+    describe('insertOne', () => {
+        it('saves a document to the database', async() => {
+            let r = await spaceships.insertOne({
                 name: 'USS Enterprise'
-            }
+            })
 
-            await spaceships.save(spaceship)
-        })
-    })*/
-
-    /*describe('updateAndFind', () => {
-        it('updates an object', async() => {
-            let s = await createSpaceship(db)
-            let r = await spaceships.updateAndFind(s._id, s._version, { speed: 1 })
-            expect(r._version).to.eq(s._version + 1)
+            expect(await db.collection('spaceships').find({})).to.eq([{
+                _id: r._id,
+                name: 'USS Enterprise'
+            }])
         })
 
-        it('updates an object, ignoring _version in the update parameter', async() => {
-            let s = await createSpaceship(db)
-            let r = await spaceships.updateAndFind(s._id, s._version, { _version: 100, speed: 1 })
-            expect(r._version).to.eq(s._version + 1)
+        it('saves a versioned document to the database', async() => {
+            let r = await spaceshipsV.insertOne({
+                name: 'USS Enterprise'
+            })
+
+            expect(await db.collection('spaceships').find({})).to.eq([{
+                _id: r._id,
+                name: 'USS Enterprise'
+            }])
         })
-    })*/
+
+        it('returns the saved document', async() => {
+            let r = await spaceships.insertOne({
+                name: 'USS Enterprise'
+            })
+
+            expect(await db.collection('spaceships').find({})).to.eq([{
+                _id: r._id,
+                name: 'USS Enterprise'
+            }])
+        })
+    })
 })

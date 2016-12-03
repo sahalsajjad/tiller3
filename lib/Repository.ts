@@ -29,8 +29,8 @@ export abstract class Repository<T extends Document> {
      * @param document      The document to create
      * @returns             The created document
      */
-    async insertOne(document: T):Promise<T> {
-        if(this.options.versionDocuments) {
+    async insertOne(document: T): Promise<T> {
+        if (this.options.versionDocuments) {
             document._version = document._version || 0
         }
 
@@ -47,8 +47,8 @@ export abstract class Repository<T extends Document> {
      *
      * @see insertOne
      */
-    async insertMany(documents: T[]):Promise<T[]> {
-        if(this.options.versionDocuments) {
+    async insertMany(documents: T[]): Promise<T[]> {
+        if (this.options.versionDocuments) {
             documents.forEach(d => d._version = d._version || 0)
         }
 
@@ -56,22 +56,44 @@ export abstract class Repository<T extends Document> {
         return r.ops
     }
 
-    // TODO Make sure _version and _id are not in update or make sure it still works if its set to bad values ...
-    async update(_id, _version: number, update: any): Promise<void> {
-        let r = await this.collection.updateOne({
-            _id: _id,
-            _version: _version
-        }, {
-            $set: update,
-            $inc: { _version: 1 },
-            $push: {
-                _log: update
-            }
-        })
+    /**
+     * Delta-updates a document in the database with a delta object
+     *
+     * TODO check what happens if _version/_id exists in update
+     *
+     * @param _id
+     * @param _version
+     * @param update
+     */
+    async update(_id: any, update: any, _version?: number): Promise<T> {
+        let selector = {
+            _id: _id
+        }
 
-        if (r.modifiedCount != 1) {
+        let dbUpdate = {
+            $set: update
+        }
+
+        // Check that version exists, if versioning is enabled
+        if (this.options.versionDocuments) {
+            if (_version === null || _version === undefined) {
+                throw new Error('_version is missing')
+            }
+
+            if('_version' in dbUpdate.$set) {
+                dbUpdate.$set = _.omit(dbUpdate.$set, '_version')
+            }
+
+            selector['_version'] = _version
+            dbUpdate['$inc'] = { _version: 1 }
+        }
+
+        let r = await this.collection.findOneAndUpdate(selector, dbUpdate, {returnOriginal: false})
+        if (!r.value || r.ok != 1) {
             throw new Error('Attempted to update a stale or deleted object')
         }
+
+        return r.value
     }
 
     find(sel): Promise<T[]> {

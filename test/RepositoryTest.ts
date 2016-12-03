@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import { includeHelper, db } from "./helper"
 import { SpaceshipRepository } from "./lib/repositories/SpaceshipRepository"
+import { Spaceship } from "./lib/models/Spaceship";
 
 describe('Repository', () => {
     includeHelper()
@@ -187,6 +188,77 @@ describe('Repository', () => {
             }])
 
             expect(await spaceshipsV.collection.find({}).toArray()).to.eqls(r)
+        })
+    })
+
+    describe('update', () => {
+
+        let spaceship: Spaceship
+        let spaceshipV: Spaceship
+        beforeEach(async() => {
+            spaceship = await spaceships.insertOne({
+                name: 'USS Enterprise'
+            })
+            spaceshipV = await spaceshipsV.insertOne({
+                name: 'USS Enterprise'
+            })
+        })
+
+        it('updates properties, leaving the others untouched', async() => {
+            await spaceships.update(spaceship._id, {
+                speed: 10000
+            })
+
+            expect(await spaceships.collection.find({ _id: spaceship._id }).toArray()).to.eqls([{
+                _id: spaceship._id,
+                name: 'USS Enterprise',
+                speed: 10000
+            }])
+        })
+
+        it('returns the updated document', async() => {
+            let r = await spaceships.update(spaceship._id, {
+                speed: 10000
+            })
+
+            expect(await spaceships.collection.find({ _id: spaceship._id }).toArray()).to.eqls([r])
+        })
+
+        it('updates and increments _version', async() => {
+            let r = await spaceshipsV.update(spaceshipV._id, {
+                speed: 10000
+            }, spaceshipV._version)
+
+            expect(r._version).to.eqls(spaceshipV._version + 1)
+        })
+
+        it('updates and increments _version, even if _version is part of the update', async() => {
+            let r = await spaceshipsV.update(spaceshipV._id, {
+                _version: 10,
+                speed: 10000
+            }, spaceshipV._version)
+
+            expect(r._version).to.eqls(spaceshipV._version + 1)
+        })
+
+        it('does not update if _version is old', async() => {
+            // First update should work
+            let r = await spaceshipsV.update(spaceshipV._id, {
+                speed: 10000
+            }, spaceshipV._version)
+
+            // Second update should throw an error, because the object is old
+            try {
+                await spaceshipsV.update(spaceshipV._id, {
+                    speed: 10001
+                }, spaceshipV._version)
+                expect.fail()
+            } catch (e) {
+                expect(e.message).to.match(/stale/)
+            }
+
+            // Check that now update was performed
+            expect(await spaceships.collection.find({ _id: spaceshipV._id }).toArray()).to.eqls([r])
         })
     })
 })

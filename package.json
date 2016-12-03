@@ -5,7 +5,9 @@
   "main": "DB.js",
   "repository": "https://github.com/freight-hub/tiller3",
   "dependencies": {
+    "@types/lodash": "^4.14.41",
     "@types/mongodb": "^2.1.36",
+    "lodash": "^4.17.2",
     "mongodb": "^2.2.12",
     "source-map-support": "^0.4.6",
     "typescript": "^2.0.10"
@@ -17,8 +19,8 @@
     "mocha": "^3.2.0"
   },
   "scripts": {
-    "postinstall": "tsc",
-    "test": "mocha"
+    "postinstall": "node_modules/.bin/tsc",
+    "test": "node_modules/.bin/mocha"
   },
   "author": "Erik Muttersbach <erik@muttersbach.net>",
   "license": "ISC"

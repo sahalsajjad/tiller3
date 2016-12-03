@@ -1,12 +1,11 @@
-import { Spaceships } from "./lib/repositories/Spaceships"
-import { db } from "./helper";
 import { Spaceship } from "./lib/models/Spaceship";
 import { Db } from "mongodb";
+import { SpaceshipRepository } from "./lib/repositories/SpaceshipRepository";
 
 export async function createSpaceship(db: Db, name?: string): Promise<Spaceship> {
-    let spaceships = new Spaceships(db)
+    let spaceships = new SpaceshipRepository(db)
 
-    return {
+    return await spaceships.insertOne({
         name: name || 'USS Enterprise'
-    }
+    })
 }

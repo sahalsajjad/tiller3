@@ -11,6 +11,7 @@
     "istanbul": "^0.4.5",
     "lodash": "^4.17.2",
     "mongodb": "^2.2.12",
+    "remap-istanbul": "^0.7.0",
     "source-map-support": "^0.4.6",
     "typescript": "^2.0.10"
   },
@@ -18,12 +19,13 @@
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.33",
     "chai": "^3.5.0",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "remap-istanbul": "^0.7.0"
   },
   "scripts": {
     "postinstall": "node_modules/.bin/tsc",
     "test": "node_modules/.bin/mocha",
-    "codecov": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- --ui bdd test/ && ./node_modules/.bin/codecov"
+    "codecov": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- --ui bdd test/"
   },
   "author": "Erik Muttersbach <erik@muttersbach.net>",
   "license": "ISC"

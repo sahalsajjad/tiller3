@@ -7,18 +7,17 @@
   "dependencies": {
     "@types/lodash": "^4.14.41",
     "@types/mongodb": "^2.1.36",
-    "codecov": "^1.0.1",
-    "istanbul": "^0.4.5",
     "lodash": "^4.17.2",
     "mongodb": "^2.2.12",
-    "remap-istanbul": "^0.7.0",
     "source-map-support": "^0.4.6",
     "typescript": "^2.0.10"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.33",
+    "istanbul": "^0.4.5",
     "chai": "^3.5.0",
+    "codecov": "^1.0.1",
     "mocha": "^3.2.0",
     "remap-istanbul": "^0.7.0"
   },

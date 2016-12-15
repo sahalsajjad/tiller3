@@ -14,10 +14,10 @@ export abstract class Repository<T extends Document> {
     /**
      * Passes aggregation stages to the mongoDB aggregation pipeline and returns a cursor
      *
-     * @param {any[]} stages
+     * @param {{}[]} stages
      * @returns {AggregationCursor}
      */
-    aggregate(stages: any[]): AggregationCursor {
+    aggregate(stages: {}[]): AggregationCursor {
         return this.collection.aggregate(stages)
     }
 
@@ -104,23 +104,23 @@ export abstract class Repository<T extends Document> {
 
     /**
      * Returns a MongoDB cursor for the given selector
-     * @param {any} sel
+     * @param {{}} sel
      * @returns {Cursor}
      */
-    cursor(sel: any): Cursor {
+    cursor(sel: {}): Cursor {
         return this.collection.find(sel)
     }
 
     /**
      * Executes given find selector
-     * @param {any} sel
+     * @param {{}} sel
      * @returns {Promise<T[]>}
      */
-    find(sel: any): Promise<T[]> {
+    find(sel: {}): Promise<T[]> {
         return this.cursor(sel).toArray()
     }
 
-    findOne(sel: any): Promise<T> {
+    findOne(sel: {}): Promise<T> {
         return this.collection.findOne(sel)
     }
 }

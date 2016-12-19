@@ -1,21 +1,35 @@
-export interface LookupStage {
-    $lookup: {
-        from: string,
-        localField: string,
-        foreignField: string,
-        as: string
+const generateLookupStage = (foreignCollection: string, localField: string, asField: string) => {
+    return {
+        $lookup: {
+            from: foreignCollection,
+            localField: localField,
+            foreignField: '_id',
+            as: asField
+        }
     }
 }
 
+const localFieldToAs = (localField: string) => {
+    if (!localField.match(/_id$/)) {
+        throw new Error('localField is required to end in _id as per MongoDB standards')
+    }
+
+    return localField.replace('_id', '')
+}
+
 export class QueryBuilder {
-    static generateLookupStage(foreignCollection: string, localField: string, as: string): LookupStage {
-        return {
-            $lookup: {
-                from: foreignCollection,
-                localField: localField,
-                foreignField: '_id',
-                as: as
+    static generateLookupMany(foreignCollection: string, localField: string): any[] {
+        const asField = localFieldToAs(localField)
+        return [generateLookupStage(foreignCollection, localField, asField)]
+    }
+
+    static generateLookupOne(foreignCollection: string, localField: string): any[] {
+        const asField = localFieldToAs(localField)
+        return [
+            generateLookupStage(foreignCollection, localField, asField),
+            {
+                $unwind: '$' + asField
             }
-        }
+        ]
     }
 }

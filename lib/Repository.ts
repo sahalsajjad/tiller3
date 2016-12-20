@@ -67,13 +67,12 @@ export abstract class Repository<T extends Document> {
      *
      * TODO check what happens if _version/_id exists in update
      *
-     * @param _id
      * @param _version
      * @param update
      */
-    async update(_id: any, update: any, _version?: number): Promise<T> {
+    async update(update: { _id: any }, _version?: number): Promise<T> {
         let selector = {
-            _id: _id
+            _id: update._id
         }
 
         let dbUpdate = {

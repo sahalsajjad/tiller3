@@ -67,38 +67,64 @@ export abstract class Repository<T extends Document> {
      *
      * TODO check what happens if _version/_id exists in update
      *
-     * @param _version
-     * @param update
+     * @param update            The delta update document
+     * @returns {Promise<T>}    The updated document
      */
-    async update(update: Document, _version?: number): Promise<T> {
+    async update(update: Document, options?: { upsert?: boolean }): Promise<T> {
         let selector = {
             _id: update._id
         }
 
         let dbUpdate = {
-            $set: update
+            $set: _.omit(update, ['_version', '_id'])
         }
 
         // Check that version exists, if versioning is enabled
         if (this.options.versionDocuments) {
-            if (_version === null || _version === undefined) {
+            if (update._version === null || update._version === undefined) {
                 throw new Error('_version is missing')
             }
 
-            if ('_version' in dbUpdate.$set) {
-                dbUpdate.$set = _.omit(dbUpdate.$set, '_version')
-            }
-
-            selector['_version'] = _version
+            selector['_version'] = update._version
             dbUpdate['$inc'] = { _version: 1 }
         }
 
-        let r = await this.collection.findOneAndUpdate(selector, dbUpdate, { returnOriginal: false })
+        try {
+            var r = await this.collection.findOneAndUpdate(selector, dbUpdate, _.assign({ returnOriginal: false }, options))
+        } catch(e) {
+            if(options.upsert && e.code == 11000 && e.name == 'MongoError' && e.message.match(/_id_ dup key/)) {
+                // In this case the user performed an upsert operation and a "E11000 duplicate key error"
+                // was thrown, e.g. "E11000 duplicate key error collection: tiller3_test.spaceShips index: _id_ dup key: { : ObjectId('585916fc316d3352848b83fb') }"
+                // This is caused by a stale object update (`update._version` being old) and thus an insert would take place.
+                // As an object with the same `_id` already exists (basically a newer version) an insert was attempted with
+                // the same _id and consequently failed.
+                throw new Error('Attempted to update a stale or deleted object')
+            } else {
+                throw e
+            }
+        }
         if (!r.value || r.ok != 1) {
             throw new Error('Attempted to update a stale or deleted object')
         }
 
         return r.value
+    }
+
+    /**
+     * Delta-upserts a document in the database. Check out the `update` method for details
+     *
+     * @param update            The delta update document
+     * @returns {Promise<T>}    The updated document
+     */
+    async upsert(update: Document): Promise<T> {
+        return this.update(update, { upsert: true })
+    }
+
+    /**
+     * @see Collection.count
+     */
+    async count(sel: Document): Promise<number> {
+        return this.collection.count(sel)
     }
 
     /**

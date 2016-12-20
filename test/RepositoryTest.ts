@@ -2,6 +2,7 @@ import { expect } from 'chai'
 import { includeHelper, db } from "./helper"
 import { Spaceship } from './lib/models/Spaceship'
 import { SpaceshipRepository } from "./lib/repositories/SpaceshipRepository"
+import { Document } from "../lib/Document";
 const mongodb = require('mongodb')
 
 describe('Repository', () => {
@@ -192,82 +193,97 @@ describe('Repository', () => {
         })
     })
 
-    describe('update', () => {
+    for(let operation of ['update', 'upsert']) {
+        describe(operation, () => {
 
-        let spaceship: Spaceship
-        let spaceshipV: Spaceship
-        beforeEach(async() => {
-            spaceship = await spaceships.insertOne({
-                name: 'USS Enterprise'
-            })
-            spaceshipV = await spaceshipsV.insertOne({
-                name: 'USS Enterprise'
-            })
-        })
+            // Prepare a non-versioned and versioned spaceship
+            let spaceship: Spaceship
+            let spaceshipV: Spaceship
 
-        it('updates properties, leaving the others untouched', async() => {
-            await spaceships.update({
-                _id: spaceship._id,
-                speed: 10000
-            })
+            // Get hold of the update or upsert operation, non-versioned and versioned
+            let fn:(update:Document) => Promise<Spaceship> = null
+            let fnV:(update:Document) => Promise<Spaceship> = null
 
-            expect(await spaceships.collection.find({ _id: spaceship._id }).toArray()).to.eqls([{
-                _id: spaceship._id,
-                name: 'USS Enterprise',
-                speed: 10000
-            }])
-        })
-
-        it('returns the updated document', async() => {
-            let r = await spaceships.update({
-                _id: spaceship._id,
-                speed: 10000
+            beforeEach(async() => {
+                spaceship = await spaceships.insertOne({
+                    name: 'USS Enterprise'
+                })
+                spaceshipV = await spaceshipsV.insertOne({
+                    name: 'USS Enterprise'
+                })
+                fn = spaceships[operation].bind(spaceships)
+                fnV = spaceshipsV[operation].bind(spaceshipsV)
             })
 
-            expect(await spaceships.collection.find({ _id: spaceship._id }).toArray()).to.eqls([r])
-        })
+            it('updates properties, leaving the others untouched', async() => {
+                await fn({
+                    _id: spaceship._id,
+                    speed: 10000
+                })
 
-        it('updates and increments _version', async() => {
-            let r = await spaceshipsV.update({
-                _id: spaceshipV._id,
-                speed: 10000
-            }, spaceshipV._version)
+                expect(await spaceships.collection.find({ _id: spaceship._id }).toArray()).to.eqls([{
+                    _id: spaceship._id,
+                    name: 'USS Enterprise',
+                    speed: 10000
+                }])
+            })
 
-            expect(r._version).to.eqls(spaceshipV._version + 1)
-        })
+            it('returns the updated document', async() => {
+                let r = await fn({
+                    _id: spaceship._id,
+                    speed: 10000
+                })
 
-        it('updates and increments _version, even if _version is part of the update', async() => {
-            let r = await spaceshipsV.update({
-                _id: spaceshipV._id,
-                _version: 10,
-                speed: 10000
-            }, spaceshipV._version)
+                expect(await spaceships.collection.find({ _id: spaceship._id }).toArray()).to.eqls([r])
+            })
 
-            expect(r._version).to.eqls(spaceshipV._version + 1)
-        })
-
-        it('does not update if _version is old', async() => {
-            // First update should work
-            let r = await spaceshipsV.update({
-                _id: spaceshipV._id,
-                speed: 10000
-            }, spaceshipV._version)
-
-            // Second update should throw an error, because the object is old
-            try {
-                await spaceshipsV.update({
+            it('updates and increments _version', async() => {
+                let r = await fnV({
                     _id: spaceshipV._id,
-                    speed: 10001
-                }, spaceshipV._version)
-                expect.fail()
-            } catch (e) {
-                expect(e.message).to.match(/stale/)
-            }
+                    _version: spaceshipV._version,
+                    speed: 10000
+                })
 
-            // Check that now update was performed
-            expect(await spaceships.collection.find({ _id: spaceshipV._id }).toArray()).to.eqls([r])
+                expect(r._version).to.eqls(spaceshipV._version + 1)
+            })
+
+
+            it('does not update if _version is old', async() => {
+                // First update should work
+                let r = await fnV({
+                    _id: spaceshipV._id,
+                    speed: 10000,
+                    _version: spaceshipV._version
+                })
+
+                // Second update should throw an error, because the object is old
+                try {
+                    await fnV({
+                        _id: spaceshipV._id,
+                        speed: 10001,
+                        _version: spaceshipV._version
+                    })
+                    expect.fail()
+                } catch (e) {
+                    expect(e.message).to.match(/stale/)
+                }
+
+                // Check that now update was performed
+                expect(await spaceships.collection.find({ _id: spaceshipV._id }).toArray()).to.eqls([r])
+            })
+
+            if(operation == 'upsert') {
+                it('inserts a new document', async () => {
+                    let r = await fn({
+                        _id: 1,
+                        speed: 10000
+                    })
+
+                    expect(await spaceships.count({_id: 1})).to.eq(1)
+                })
+            }
         })
-    })
+    }
 
     describe('read operations', () => {
         let ships: Spaceship[]

@@ -70,7 +70,7 @@ export abstract class Repository<T extends Document> {
      * @param _version
      * @param update
      */
-    async update(update: { _id: any }, _version?: number): Promise<T> {
+    async update(update: Document, _version?: number): Promise<T> {
         let selector = {
             _id: update._id
         }

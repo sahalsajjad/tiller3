@@ -206,7 +206,8 @@ describe('Repository', () => {
         })
 
         it('updates properties, leaving the others untouched', async() => {
-            await spaceships.update(spaceship._id, {
+            await spaceships.update({
+                _id: spaceship._id,
                 speed: 10000
             })
 
@@ -218,7 +219,8 @@ describe('Repository', () => {
         })
 
         it('returns the updated document', async() => {
-            let r = await spaceships.update(spaceship._id, {
+            let r = await spaceships.update({
+                _id: spaceship._id,
                 speed: 10000
             })
 
@@ -226,7 +228,8 @@ describe('Repository', () => {
         })
 
         it('updates and increments _version', async() => {
-            let r = await spaceshipsV.update(spaceshipV._id, {
+            let r = await spaceshipsV.update({
+                _id: spaceshipV._id,
                 speed: 10000
             }, spaceshipV._version)
 
@@ -234,7 +237,8 @@ describe('Repository', () => {
         })
 
         it('updates and increments _version, even if _version is part of the update', async() => {
-            let r = await spaceshipsV.update(spaceshipV._id, {
+            let r = await spaceshipsV.update({
+                _id: spaceshipV._id,
                 _version: 10,
                 speed: 10000
             }, spaceshipV._version)
@@ -244,13 +248,15 @@ describe('Repository', () => {
 
         it('does not update if _version is old', async() => {
             // First update should work
-            let r = await spaceshipsV.update(spaceshipV._id, {
+            let r = await spaceshipsV.update({
+                _id: spaceshipV._id,
                 speed: 10000
             }, spaceshipV._version)
 
             // Second update should throw an error, because the object is old
             try {
-                await spaceshipsV.update(spaceshipV._id, {
+                await spaceshipsV.update({
+                    _id: spaceshipV._id,
                     speed: 10001
                 }, spaceshipV._version)
                 expect.fail()

@@ -23,7 +23,6 @@
     "remap-istanbul": "^0.7.0"
   },
   "scripts": {
-    "postinstall": "node_modules/.bin/tsc",
     "test": "node_modules/.bin/mocha",
     "codecov": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- --ui bdd test/"
   },

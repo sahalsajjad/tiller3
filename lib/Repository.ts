@@ -17,7 +17,7 @@ export abstract class Repository<T extends Document> {
      * @param {{}[]} stages
      * @returns {AggregationCursor}
      */
-    aggregate(stages: {}[]): AggregationCursor {
+    aggregate(stages: {}[]): AggregationCursor<any> {
         return this.collection.aggregate(stages)
     }
 
@@ -91,8 +91,8 @@ export abstract class Repository<T extends Document> {
 
         try {
             var r = await this.collection.findOneAndUpdate(selector, dbUpdate, _.assign({ returnOriginal: false }, options))
-        } catch(e) {
-            if(options.upsert && e.code == 11000 && e.name == 'MongoError' && e.message.match(/_id_ dup key/)) {
+        } catch (e) {
+            if (options.upsert && e.code == 11000 && e.name == 'MongoError' && e.message.match(/_id_ dup key/)) {
                 // In this case the user performed an upsert operation and a "E11000 duplicate key error"
                 // was thrown, e.g. "E11000 duplicate key error collection: tiller3_test.spaceShips index: _id_ dup key: { : ObjectId('585916fc316d3352848b83fb') }"
                 // This is caused by a stale object update (`update._version` being old) and thus an insert would take place.
@@ -132,7 +132,7 @@ export abstract class Repository<T extends Document> {
      * @param {{}} sel
      * @returns {Cursor}
      */
-    cursor(sel: {}): Cursor {
+    cursor(sel: {}): Cursor<T> {
         return this.collection.find(sel)
     }
 

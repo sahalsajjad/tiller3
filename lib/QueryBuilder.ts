@@ -23,12 +23,15 @@ export class QueryBuilder {
         return [generateLookupStage(foreignCollection, localField, asField)]
     }
 
-    static generateLookupOne(foreignCollection: string, localField: string): any[] {
+    static generateLookupOne(foreignCollection: string, localField: string, keepEmpty?: boolean): any[] {
         const asField = localFieldToAs(localField)
         return [
             generateLookupStage(foreignCollection, localField, asField),
             {
-                $unwind: '$' + asField
+                $unwind: {
+                    path: `$${asField}`,
+                    preserveNullAndEmptyArrays: keepEmpty,
+                }
             }
         ]
     }

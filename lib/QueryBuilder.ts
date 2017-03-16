@@ -30,7 +30,7 @@ export class QueryBuilder {
             {
                 $unwind: {
                     path: `$${asField}`,
-                    preserveNullAndEmptyArrays: keepEmpty,
+                    preserveNullAndEmptyArrays: !!keepEmpty,
                 }
             }
         ]
